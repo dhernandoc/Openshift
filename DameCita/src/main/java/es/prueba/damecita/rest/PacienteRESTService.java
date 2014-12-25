@@ -32,6 +32,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import es.prueba.damecita.model.Paciente;
+import es.prueba.damecita.rest.entity.PacienteRestBean;
 
 /**
  * JAX-RS Example
@@ -39,11 +40,12 @@ import es.prueba.damecita.model.Paciente;
  * This class produces a RESTful service to read/write the contents of the members table.
  */
 @Path("/pacientes")
+@RequestScoped
 public interface PacienteRESTService {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Paciente> listAllPacientes();
+    public List<PacienteRestBean> listAllPacientesRest();
 
     @GET
     @Path("/{id:[0-9][0-9]*}")

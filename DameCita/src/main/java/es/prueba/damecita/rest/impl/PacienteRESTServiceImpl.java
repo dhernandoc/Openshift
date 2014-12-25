@@ -16,9 +16,11 @@
  */
 package es.prueba.damecita.rest.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -32,31 +34,30 @@ import javax.ws.rs.core.Response.Status;
 
 import es.prueba.damecita.model.Paciente;
 import es.prueba.damecita.rest.PacienteRESTService;
+import es.prueba.damecita.rest.entity.PacienteRestBean;
+import es.prueba.damecita.service.PacienteService;
 import es.prueba.damecita.service.impl.PacienteServiceImpl;
 
-@Path("/pacientes")
-@RequestScoped
-public class PacienteRESTServiceImpl extends PacienteServiceImpl implements PacienteRESTService {
+public class PacienteRESTServiceImpl implements PacienteRESTService {
 
-    @Inject
+
+	@Inject
     private Logger log;
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-	public List<Paciente> listAllPacientes() {
-    	System.out.println("Paso");
-    	log.severe("Caca");
-    	List<Paciente> resultado = null;
-    	try
-    	{
-    		resultado = super.listAllPacientes();
-    	}
-		catch (Exception ex)
-		{
-			log.severe(ex.getMessage());
+	@EJB
+    private PacienteService pacienteService;
+
+	public List<PacienteRestBean> listAllPacientesRest() {
+    	log.entering(this.getClass().getName(), "public List<PacienteRestBean> listAllPacientesRest()");
+    	List<PacienteRestBean> resultadoRest=null;
+		try {
+			resultadoRest = getListaPacientesRest(pacienteService.listAllPacientes());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-    	
-    	return resultado;
+    	log.exiting(this.getClass().getName(), "public List<PacienteRestBean> listAllPacientesRest()", resultadoRest);
+    	return resultadoRest;
 	}
 
 
@@ -65,7 +66,7 @@ public class PacienteRESTServiceImpl extends PacienteServiceImpl implements Paci
 		// TODO Auto-generated method stub
 		try
 		{
-			super.create(paciente);
+			pacienteService.create(paciente);
 		}
 		catch (Exception ex)
 		{
@@ -78,7 +79,7 @@ public class PacienteRESTServiceImpl extends PacienteServiceImpl implements Paci
 		public Response deleteById(Long id) {
 		   try
 		   {
-			   super.delete(id);
+			   pacienteService.delete(id);
 			   return Response.noContent().build();
 
 		   }
@@ -92,7 +93,7 @@ public class PacienteRESTServiceImpl extends PacienteServiceImpl implements Paci
 	      Paciente paciente=null;
 	      try
 	      {
-	         paciente = super.findById(id);
+	    	  System.out.println("No implmentado");
 	      }
 	      catch (Exception nre)
 	      {
@@ -111,7 +112,7 @@ public class PacienteRESTServiceImpl extends PacienteServiceImpl implements Paci
 	   {
 		   List<Paciente> resultado=null;
 		   try {
-			resultado = super.listAllPacientes();
+			resultado = pacienteService.listAllPacientes();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -122,7 +123,7 @@ public class PacienteRESTServiceImpl extends PacienteServiceImpl implements Paci
 	   {
 	      try
 	      {
-	         entity = super.updatePaciente(entity);
+	         entity = pacienteService.updatePaciente(entity);
 	      }
 	      catch (Exception e)
 	      {
@@ -130,7 +131,29 @@ public class PacienteRESTServiceImpl extends PacienteServiceImpl implements Paci
 	      }
 	      return Response.noContent().build();
 	   }
-
+	   
+	   private List<PacienteRestBean> getListaPacientesRest(List<Paciente> pacientes)
+	   {
+	    	List<PacienteRestBean> resultadoRest = new ArrayList<PacienteRestBean>();
+	    	PacienteRestBean temp = null;
+	    	try
+	    	{
+	    		for (Paciente paciente : pacientes) {
+					temp = new PacienteRestBean();
+					temp.setNombre(paciente.getNombre());
+					temp.setId(paciente.getId());
+					temp.setEmail(paciente.getEmail());
+					temp.setTelefono(paciente.getTelefono());
+					temp.setVersion(paciente.getVersion());
+					resultadoRest.add(temp);
+	    		}
+	    	}
+			catch (Exception ex)
+			{
+				log.severe(ex.getMessage());
+			}
+	    	return resultadoRest;
+	   }
 
 
 }

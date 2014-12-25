@@ -19,7 +19,9 @@ package es.prueba.damecita.service.impl;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.ejb.Local;
 import javax.ejb.Stateless;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -35,9 +37,11 @@ import javax.ws.rs.core.Response.Status;
 import es.prueba.damecita.model.Cita;
 import es.prueba.damecita.model.Member;
 import es.prueba.damecita.model.Paciente;
+import es.prueba.damecita.service.PacienteService;
 
 // The @Stateless annotation eliminates the need for manual transaction demarcation
 @Stateless
+@Local(PacienteService.class)
 public class PacienteServiceImpl {
 
     @Inject
@@ -46,10 +50,13 @@ public class PacienteServiceImpl {
     @Inject
     private EntityManager em;
 
+    @Inject
+    private Event<Paciente> pacienteEventSrc;
 
     public void create(Paciente paciente) throws Exception {
         log.info("Creando Paciente " + paciente.getNombre());
         em.persist(paciente);
+        pacienteEventSrc.fire(paciente);
     }
 
     public void delete(Long idPaciente) throws Exception {
